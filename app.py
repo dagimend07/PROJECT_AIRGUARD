@@ -225,7 +225,7 @@ if navigation == "Dashboard":
                     st.error(err)
 
     # Band filter and controls
-    ctrl_col1, ctrl_col2, ctrl_col3 = st.columns([1.8, 1.1, 1.1])
+    ctrl_col1, ctrl_col2, ctrl_col3, ctrl_col4 = st.columns([1.6, 1.0, 1.0, 1.0])
     with ctrl_col1:
         band_filter = st.radio(
             "RF Band Filter",
@@ -234,9 +234,21 @@ if navigation == "Dashboard":
             label_visibility="collapsed"
         )
     with ctrl_col2:
-        run_ai_btn = st.button("🤖 AI Threat Correlation", use_container_width=True, disabled=not has_any_data)
+        run_ai_btn = st.button("🤖 AI Correlation", use_container_width=True, disabled=not has_any_data)
     with ctrl_col3:
-        rescan_btn = st.button("🔄 Re-Correlate Baselines", use_container_width=True, disabled=inv_df.empty)
+        rescan_btn = st.button("🔄 Re-Correlate", use_container_width=True, disabled=inv_df.empty)
+    with ctrl_col4:
+        if has_any_data:
+            if st.button("🗑️ Reset Telemetry", use_container_width=True, help="Clear active Dashboard telemetry and radar"):
+                st.session_state["inventory_df"] = pd.DataFrame()
+                st.session_state["pcap_counts"] = None
+                st.session_state["pcap_events"] = pd.DataFrame()
+                st.session_state["protocol_summary"] = None
+                st.session_state.pop("dashboard_ai_summary", None)
+                st.toast("Dashboard telemetry reset to Standby!", icon="🗑️")
+                st.rerun()
+        else:
+            st.button("🗑️ Reset Telemetry", use_container_width=True, disabled=True)
 
     if rescan_btn and not inv_df.empty:
         alerts_df = detect_rogues(inv_df, baseline_df)
@@ -562,7 +574,17 @@ elif navigation == "Wireless Inventory":
         badge_type="cyan"
     ), unsafe_allow_html=True)
     
-    uploaded_csv = st.file_uploader("Upload Kismet CSV", type=["csv"], key="inv_csv_uploader")
+    inv_up_c1, inv_up_c2 = st.columns([3, 1])
+    with inv_up_c1:
+        uploaded_csv = st.file_uploader("Upload Kismet CSV", type=["csv"], key="inv_csv_uploader")
+    with inv_up_c2:
+        st.write("")
+        st.write("")
+        if not st.session_state.get("inventory_df", pd.DataFrame()).empty:
+            if st.button("🗑️ Clear Inventory", use_container_width=True, key="inv_top_clear_btn", help="Clear loaded wireless inventory"):
+                st.session_state["inventory_df"] = pd.DataFrame()
+                st.toast("Wireless inventory cleared!", icon="🗑️")
+                st.rerun()
 
     if uploaded_csv is not None:
         df = load_inventory_data(uploaded_csv)
@@ -644,7 +666,18 @@ elif navigation == "PCAP Analyzer":
         badge_type="cyan"
     ), unsafe_allow_html=True)
     
-    uploaded_file = st.file_uploader("Upload wireless packet capture (.pcap, .pcapng)", type=["pcap", "pcapng"])
+    pcap_up_c1, pcap_up_c2 = st.columns([3, 1])
+    with pcap_up_c1:
+        uploaded_file = st.file_uploader("Upload wireless packet capture (.pcap, .pcapng)", type=["pcap", "pcapng"])
+    with pcap_up_c2:
+        st.write("")
+        st.write("")
+        if st.session_state.get("pcap_counts") is not None:
+            if st.button("🗑️ Clear PCAP", use_container_width=True, key="pcap_top_clear_btn", help="Clear loaded PCAP packet frames"):
+                st.session_state["pcap_counts"] = None
+                st.session_state["pcap_events"] = pd.DataFrame()
+                st.toast("PCAP telemetry cleared!", icon="🗑️")
+                st.rerun()
 
     if uploaded_file is not None:
         counts, events_df, error = analyze_pcap(uploaded_file)
@@ -717,12 +750,25 @@ elif navigation == "AI Analyst":
     else:
         user_query = preset_question
 
-    if st.button("Analyze Evidence"):
+    ai_c1, ai_c2 = st.columns([2, 1])
+    with ai_c1:
+        run_ai = st.button("Analyze Evidence", use_container_width=True)
+    with ai_c2:
+        if "ai_analyst_response" in st.session_state and st.session_state["ai_analyst_response"]:
+            if st.button("🗑️ Clear AI Output", use_container_width=True):
+                st.session_state.pop("ai_analyst_response", None)
+                st.toast("AI output cleared!", icon="🗑️")
+                st.rerun()
+
+    if run_ai:
         if not has_evidence:
             st.error("Cannot analyze without evidence. Please upload a Kismet CSV or PCAP first.")
         else:
             response = ask_ai_analyst(user_query, inv_df, pcap_counts or {}, api_key)
-            st.markdown(response)
+            st.session_state["ai_analyst_response"] = response
+
+    if "ai_analyst_response" in st.session_state and st.session_state["ai_analyst_response"]:
+        st.markdown(st.session_state["ai_analyst_response"])
 
     st.markdown("---")
     st.subheader("Week 8: AI Verification & Hallucination Challenge")
@@ -940,11 +986,21 @@ elif navigation == "Protocol Analysis":
         badge_type="cyan"
     ), unsafe_allow_html=True)
 
-    uploaded_pcap = st.file_uploader(
-        "Upload PCAP for Protocol Inspection",
-        type=["pcap", "pcapng"],
-        key="protocol_pcap"
-    )
+    proto_up_c1, proto_up_c2 = st.columns([3, 1])
+    with proto_up_c1:
+        uploaded_pcap = st.file_uploader(
+            "Upload PCAP for Protocol Inspection",
+            type=["pcap", "pcapng"],
+            key="protocol_pcap"
+        )
+    with proto_up_c2:
+        st.write("")
+        st.write("")
+        if st.session_state.get("protocol_summary") is not None:
+            if st.button("🗑️ Clear Protocol Data", use_container_width=True, key="proto_top_clear_btn", help="Clear protocol analysis summary"):
+                st.session_state["protocol_summary"] = None
+                st.toast("Protocol analysis cleared!", icon="🗑️")
+                st.rerun()
 
     if uploaded_pcap is not None:
         eapol_df, deauth_df, summary, error = analyze_protocols(uploaded_pcap)
@@ -1087,13 +1143,21 @@ elif navigation == "Assessment Workspace":
         }
     )
     
-    if st.button("Save Updates to Findings"):
-        st.session_state["findings_df"] = edited_findings
-        scope["In-Scope Targets"] = new_in_scope
-        scope["Out-of-Scope"] = new_out_scope
-        scope["Approved Tools"] = new_tools
-        st.session_state["scope"] = scope
-        st.success("Findings and scope updated successfully! Real-time Dashboard and Reports are now synchronized.")
+    w_btn_c1, w_btn_c2 = st.columns([2, 1])
+    with w_btn_c1:
+        if st.button("💾 Save Updates to Findings", use_container_width=True):
+            st.session_state["findings_df"] = edited_findings
+            scope["In-Scope Targets"] = new_in_scope
+            scope["Out-of-Scope"] = new_out_scope
+            scope["Approved Tools"] = new_tools
+            st.session_state["scope"] = scope
+            st.success("Findings and scope updated successfully! Real-time Dashboard and Reports are now synchronized.")
+    with w_btn_c2:
+        if not findings_df.empty:
+            if st.button("🗑️ Clear All Findings", use_container_width=True, help="Reset findings table to empty"):
+                st.session_state["findings_df"] = pd.DataFrame(columns=["ID", "Severity", "Title", "Target", "Evidence (Packet/Log)", "Status", "Remediation"])
+                st.toast("Findings log reset to empty!", icon="🗑️")
+                st.rerun()
 
 
 # =============================================================
@@ -1140,7 +1204,17 @@ elif navigation == "Reports":
         else:
             st.info("ℹ️ No findings logged in the Assessment Workspace yet. Document and verify findings in the Assessment Workspace before generating the final report.")
     
-    if st.button("Generate Final Report"):
+    r_btn_c1, r_btn_c2 = st.columns([2, 1])
+    with r_btn_c1:
+        generate_clicked = st.button("📄 Generate Final Report", use_container_width=True)
+    with r_btn_c2:
+        if "generated_report" in st.session_state and st.session_state["generated_report"]:
+            if st.button("🗑️ Clear Report View", use_container_width=True):
+                st.session_state.pop("generated_report", None)
+                st.toast("Report preview cleared!", icon="🗑️")
+                st.rerun()
+
+    if generate_clicked:
         report_markdown = generate_markdown_report(
             scope, 
             findings_df, 
@@ -1148,15 +1222,16 @@ elif navigation == "Reports":
             pcap_counts=st.session_state.get("pcap_counts"), 
             proto_summary=st.session_state.get("protocol_summary")
         )
-        
+        st.session_state["generated_report"] = report_markdown
         st.success("Report generated successfully!")
+
+    if "generated_report" in st.session_state and st.session_state["generated_report"]:
         st.markdown("---")
-        st.markdown(report_markdown)
+        st.markdown(st.session_state["generated_report"])
         st.markdown("---")
-        
         st.download_button(
             label="Download Report (.md)",
-            data=report_markdown,
+            data=st.session_state["generated_report"],
             file_name="AirGuard_Final_Report.md",
             mime="text/markdown"
         )
