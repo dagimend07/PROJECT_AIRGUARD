@@ -30,7 +30,7 @@ from modules.rogue_detector import get_authorized_baseline, detect_rogues
 from modules.protocol_analyzer import analyze_protocols
 from modules.assessment_workspace import get_assessment_scope, get_findings_log
 from modules.reporter import generate_markdown_report, get_security_checklist
-from modules.ui_theme import get_custom_css, get_stitch_radar_scanner_component, render_page_header
+from modules.ui_theme import get_custom_css, get_stitch_radar_scanner_component, render_page_header, render_team_member_card
 
 # Configure page
 st.set_page_config(page_title="Project AirGuard | Wireless Security Platform", layout="wide", initial_sidebar_state="expanded")
@@ -1261,23 +1261,18 @@ elif navigation == "About Us":
         badge_type="emerald"
     ), unsafe_allow_html=True)
 
-    st.markdown("""
-    <div style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 219, 233, 0.3); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-            <div>
-                <h4 style="font-family: 'Space Grotesk', sans-serif; color: #dbfcff; margin: 0 0 4px 0; font-size: 16px;">
-                    🛡️ Project AirGuard Engineering Team
-                </h4>
-                <p style="font-size: 12.5px; color: #b9cacb; margin: 0;">
-                    Developed as a semester-long capstone platform for <strong>NWIT 275: Wireless Security & Ethical Penetration Testing</strong> (Fall 2026).
-                </p>
-            </div>
-            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 4px 10px; border-radius: 6px; background: #191b23; border: 1px solid rgba(59, 73, 75, 0.5); color: #00dbe9;">
-                5 TEAM MEMBERS
-            </span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    banner_html = (
+        '<div style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 219, 233, 0.3); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px;">'
+        '<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">'
+        '<div>'
+        '<h4 style="color: #dbfcff; margin: 0 0 4px 0; font-size: 16px; font-family: sans-serif;">🛡️ Project AirGuard Engineering Team</h4>'
+        '<p style="font-size: 12.5px; color: #b9cacb; margin: 0; font-family: sans-serif;">Developed as a semester-long capstone platform for <strong>NWIT 275: Wireless Security & Ethical Penetration Testing</strong> (Fall 2026).</p>'
+        '</div>'
+        '<span style="font-family: monospace; font-size: 11px; padding: 4px 10px; border-radius: 6px; background: #191b23; border: 1px solid rgba(59, 73, 75, 0.5); color: #00dbe9;">5 TEAM MEMBERS</span>'
+        '</div>'
+        '</div>'
+    )
+    st.markdown(banner_html, unsafe_allow_html=True)
 
     # -------------------------------------------------------------
     # TEAM MEMBERS CONFIGURATION (Easy to customize!)
@@ -1332,79 +1327,23 @@ elif navigation == "About Us":
         },
     ]
 
-    def render_team_card(m):
-        photo = m.get("photo_path", "")
-        init = m.get("initials", "MC")
-        m_name = m.get("name", "Team Member")
-        m_bio = m.get("bio", "")
-        m_email = m.get("email", "#")
-        m_in = m.get("linkedin", "#")
-        m_gh = m.get("github", "#")
-        
-        avatar_markup = ""
-        if photo and os.path.exists(photo):
-            try:
-                with open(photo, "rb") as img_f:
-                    b64_val = base64.b64encode(img_f.read()).decode("utf-8")
-                ext = os.path.splitext(photo)[1].lower().replace(".", "")
-                if ext == "jpg": ext = "jpeg"
-                avatar_markup = f'''
-                <div style="width: 86px; height: 86px; margin: 0 auto 14px auto; border-radius: 50%; overflow: hidden; border: 2px solid #00dbe9; box-shadow: 0 0 16px rgba(0, 219, 233, 0.4);">
-                    <img src="data:image/{ext};base64,{b64_val}" style="width: 100%; height: 100%; object-fit: cover;" alt="{m_name}" />
-                </div>
-                '''
-            except Exception:
-                avatar_markup = ""
-                
-        if not avatar_markup:
-            avatar_markup = f'''
-            <div style="width: 86px; height: 86px; margin: 0 auto 14px auto; border-radius: 50%; background: linear-gradient(135deg, #191b23 0%, #272a32 100%); border: 2px solid rgba(0, 219, 233, 0.5); box-shadow: 0 0 16px rgba(0, 219, 233, 0.2); display: flex; align-items: center; justify-content: center; color: #00dbe9; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 700; letter-spacing: 0.05em;">
-                {init}
-            </div>
-            '''
-
-        return f'''
-        <div style="background: #191b23; border: 1px solid rgba(59, 73, 75, 0.45); border-radius: 12px; padding: 22px 16px; display: flex; flex-direction: column; justify-content: space-between; text-align: center; min-height: 290px; box-shadow: 0 4px 20px rgba(0,0,0,0.35);">
-            <div>
-                {avatar_markup}
-                <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 16.5px; font-weight: 700; color: #dbfcff; margin: 0 0 8px 0;">
-                    {m_name}
-                </h3>
-                <p style="font-family: 'Inter', sans-serif; font-size: 12px; color: #b9cacb; line-height: 1.5; margin: 0 0 16px 0; min-height: 54px;">
-                    {m_bio}
-                </p>
-            </div>
-            <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid rgba(59, 73, 75, 0.3);">
-                <a href="mailto:{m_email}" target="_blank" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; border-radius: 6px; background: #272a32; border: 1px solid rgba(59, 73, 75, 0.5); color: #dbfcff; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 500;">
-                    ✉️ Email
-                </a>
-                <a href="{m_in}" target="_blank" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; border-radius: 6px; background: rgba(0, 119, 181, 0.15); border: 1px solid rgba(0, 119, 181, 0.4); color: #70b5f9; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 500;">
-                    💼 LinkedIn
-                </a>
-                <a href="{m_gh}" target="_blank" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; border-radius: 6px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); color: #e1e2ec; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 500;">
-                    💻 GitHub
-                </a>
-            </div>
-        </div>
-        '''
-
     # Grid Display: Row 1 (3 members)
     r1_c1, r1_c2, r1_c3 = st.columns(3)
     with r1_c1:
-        st.markdown(render_team_card(TEAM_MEMBERS[0]), unsafe_allow_html=True)
+        st.markdown(render_team_member_card(TEAM_MEMBERS[0]), unsafe_allow_html=True)
     with r1_c2:
-        st.markdown(render_team_card(TEAM_MEMBERS[1]), unsafe_allow_html=True)
+        st.markdown(render_team_member_card(TEAM_MEMBERS[1]), unsafe_allow_html=True)
     with r1_c3:
-        st.markdown(render_team_card(TEAM_MEMBERS[2]), unsafe_allow_html=True)
+        st.markdown(render_team_member_card(TEAM_MEMBERS[2]), unsafe_allow_html=True)
 
     st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
 
     # Grid Display: Row 2 (2 members centered)
     pad1, r2_c1, r2_c2, pad2 = st.columns([0.5, 1, 1, 0.5])
     with r2_c1:
-        st.markdown(render_team_card(TEAM_MEMBERS[3]), unsafe_allow_html=True)
+        st.markdown(render_team_member_card(TEAM_MEMBERS[3]), unsafe_allow_html=True)
     with r2_c2:
-        st.markdown(render_team_card(TEAM_MEMBERS[4]), unsafe_allow_html=True)
+        st.markdown(render_team_member_card(TEAM_MEMBERS[4]), unsafe_allow_html=True)
 
     st.markdown("---")
     st.caption("💡 **Photo & Link Setup Note:** To display your actual headshot, place your picture inside the `assets/team/` directory (e.g. `assets/team/dagim.jpg`) and it will automatically replace the initials icon.")

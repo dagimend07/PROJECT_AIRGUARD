@@ -999,3 +999,51 @@ def get_stitch_radar_scanner_component(inventory_df=None, alerts_df=None, is_sca
     </body>
     </html>
     """
+
+
+import base64
+import os
+
+def render_team_member_card(m):
+    """
+    Renders an individual team profile card for the About Us page,
+    styled in the Stitch dark cyber-tactical aesthetic.
+    Guarantees 0 leading spaces so Markdown never parses it as a code block.
+    """
+    photo = m.get("photo_path", "")
+    init = m.get("initials", "MC")
+    m_name = m.get("name", "Team Member")
+    m_bio = m.get("bio", "")
+    m_email = m.get("email", "#")
+    m_in = m.get("linkedin", "#")
+    m_gh = m.get("github", "#")
+    
+    avatar_markup = ""
+    if photo and os.path.exists(photo):
+        try:
+            with open(photo, "rb") as img_f:
+                b64_val = base64.b64encode(img_f.read()).decode("utf-8")
+            ext = os.path.splitext(photo)[1].lower().replace(".", "")
+            if ext == "jpg": ext = "jpeg"
+            avatar_markup = f'<div style="width: 86px; height: 86px; margin: 0 auto 14px auto; border-radius: 50%; overflow: hidden; border: 2px solid #00dbe9; box-shadow: 0 0 16px rgba(0, 219, 233, 0.4);"><img src="data:image/{ext};base64,{b64_val}" style="width: 100%; height: 100%; object-fit: cover;" alt="{m_name}" /></div>'
+        except Exception:
+            avatar_markup = ""
+            
+    if not avatar_markup:
+        avatar_markup = f'<div style="width: 86px; height: 86px; margin: 0 auto 14px auto; border-radius: 50%; background: linear-gradient(135deg, #191b23 0%, #272a32 100%); border: 2px solid rgba(0, 219, 233, 0.5); box-shadow: 0 0 16px rgba(0, 219, 233, 0.2); display: flex; align-items: center; justify-content: center; color: #00dbe9; font-family: sans-serif; font-size: 24px; font-weight: 700; letter-spacing: 0.05em;">{init}</div>'
+
+    card_html = (
+        '<div style="background: #191b23; border: 1px solid rgba(59, 73, 75, 0.45); border-radius: 12px; padding: 22px 16px; display: flex; flex-direction: column; justify-content: space-between; text-align: center; min-height: 290px; box-shadow: 0 4px 20px rgba(0,0,0,0.35);">'
+        '<div>'
+        f'{avatar_markup}'
+        f'<h3 style="font-family: sans-serif; font-size: 16.5px; font-weight: 700; color: #dbfcff; margin: 0 0 8px 0;">{m_name}</h3>'
+        f'<p style="font-family: sans-serif; font-size: 12px; color: #b9cacb; line-height: 1.5; margin: 0 0 16px 0; min-height: 54px;">{m_bio}</p>'
+        '</div>'
+        '<div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid rgba(59, 73, 75, 0.3);">'
+        f'<a href="mailto:{m_email}" target="_blank" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; border-radius: 6px; background: #272a32; border: 1px solid rgba(59, 73, 75, 0.5); color: #dbfcff; font-family: monospace; font-size: 10.5px; font-weight: 500;">✉️ Email</a>'
+        f'<a href="{m_in}" target="_blank" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; border-radius: 6px; background: rgba(0, 119, 181, 0.15); border: 1px solid rgba(0, 119, 181, 0.4); color: #70b5f9; font-family: monospace; font-size: 10.5px; font-weight: 500;">💼 LinkedIn</a>'
+        f'<a href="{m_gh}" target="_blank" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; border-radius: 6px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); color: #e1e2ec; font-family: monospace; font-size: 10.5px; font-weight: 500;">💻 GitHub</a>'
+        '</div>'
+        '</div>'
+    )
+    return card_html
