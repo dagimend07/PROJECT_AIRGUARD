@@ -132,6 +132,18 @@ spectral_load_html = f"""
 </div>
 """
 st.sidebar.markdown(spectral_load_html, unsafe_allow_html=True)
+
+if has_data:
+    st.sidebar.markdown("---")
+    if st.sidebar.button("🔄 Reset / Clear All Captures", use_container_width=True, help="Clear loaded wireless inventory and PCAP frames to return to standby"):
+        st.session_state["inventory_df"] = pd.DataFrame()
+        st.session_state["pcap_counts"] = None
+        st.session_state["pcap_events"] = pd.DataFrame()
+        st.session_state["protocol_summary"] = None
+        st.session_state.pop("dashboard_ai_summary", None)
+        st.toast("Platform reset to factory standby state! All captures cleared.", icon="🔄")
+        st.rerun()
+
 st.sidebar.caption("NWIT 275 - Fall Semester Build")
 
 
@@ -765,7 +777,17 @@ elif navigation == "Rogue AP Detector":
     st.subheader("Automated Threat Detection")
 
     # Evidence Uplink
-    uploaded_csv = st.file_uploader("Upload Kismet CSV for Threat Scan", type=["csv"], key="rogue_csv_uploader")
+    r_up_col, r_clr_col = st.columns([3, 1])
+    with r_up_col:
+        uploaded_csv = st.file_uploader("Upload Kismet CSV for Threat Scan", type=["csv"], key="rogue_csv_uploader")
+    with r_clr_col:
+        st.write("")
+        st.write("")
+        if not st.session_state.get("inventory_df", pd.DataFrame()).empty:
+            if st.button("🗑️ Clear Inventory", use_container_width=True, help="Reset and upload a new Kismet CSV"):
+                st.session_state["inventory_df"] = pd.DataFrame()
+                st.toast("Wireless inventory cleared! Radar reset to standby.", icon="🗑️")
+                st.rerun()
     
     if uploaded_csv is not None:
         inv_df = load_inventory_data(uploaded_csv)
@@ -1015,9 +1037,34 @@ elif navigation == "Reports":
     
     scope = st.session_state["scope"]
     findings_df = st.session_state["findings_df"]
+    active_threats = detect_rogues(st.session_state["inventory_df"], st.session_state["baseline_df"]) if not st.session_state["inventory_df"].empty else pd.DataFrame()
 
     if findings_df.empty:
-        st.info("ℹ️ No findings logged in the Assessment Workspace yet. Document and verify findings in the Assessment Workspace before generating the final report.")
+        if not active_threats.empty:
+            st.warning(f"⚠️ You have **{len(active_threats)} detected threats** from your Rogue AP scan that are not yet added to the findings log.")
+            if st.button("📥 Auto-Import All Active Scanned Threats into Report"):
+                new_rows = []
+                for idx, (_, alert) in enumerate(active_threats.iterrows(), 1):
+                    th_type = alert.get("Threat Type", "Rogue AP")
+                    tgt = f"{alert.get('Suspicious BSSID', 'Unknown')} ({alert.get('Target SSID', 'Unknown')})"
+                    sev = "Critical" if "Evil Twin" in th_type or "Pineapple" in th_type else ("High" if "Homoglyph" in th_type or "Karma" in th_type else "Medium")
+                    filt = alert.get("Wireshark Filter", "")
+                    sig = alert.get("Signal", "")
+                    details = alert.get("Alert Details", "")
+                    new_rows.append({
+                        "ID": f"FIND-0{idx}",
+                        "Severity": sev,
+                        "Title": f"{th_type}: {alert.get('Target SSID', 'Unknown')}",
+                        "Target": tgt,
+                        "Evidence (Packet/Log)": f"{filt} | Signal: {sig} | {details}",
+                        "Status": "Verified",
+                        "Remediation": "Locate rogue AP via directional antenna / RSSI triangulation. Block rogue MAC on switch ports. Enable 802.11w Protected Management Frames (PMF)."
+                    })
+                st.session_state["findings_df"] = pd.DataFrame(new_rows)
+                st.success(f"Imported {len(new_rows)} findings! Generating updated report...")
+                st.rerun()
+        else:
+            st.info("ℹ️ No findings logged in the Assessment Workspace yet. Document and verify findings in the Assessment Workspace before generating the final report.")
     
     if st.button("Generate Final Report"):
         report_markdown = generate_markdown_report(scope, findings_df)
