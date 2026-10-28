@@ -1,3 +1,4 @@
+import base64
 import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
@@ -113,7 +114,7 @@ st.sidebar.markdown("---")
 navigation = st.sidebar.radio(
     "Navigation",
     ["Dashboard", "Wireless Inventory", "PCAP Analyzer", "AI Analyst", 
-     "Rogue AP Detector", "Protocol Analysis", "Assessment Workspace", "Reports"]
+     "Rogue AP Detector", "Protocol Analysis", "Assessment Workspace", "Reports", "About Us"]
 )
 
 spectral_load_html = f"""
@@ -1247,3 +1248,163 @@ elif navigation == "Reports":
         use_container_width=True,
         disabled=["Control", "Details"]
     )
+
+
+# =============================================================
+# 9. ABOUT US (ENGINEERING TEAM & CONTRIBUTORS)
+# =============================================================
+elif navigation == "About Us":
+    st.markdown(render_page_header(
+        title="Engineering Team & Project Contributors",
+        subtitle="Meet the students and security researchers behind Project AirGuard — NWIT 275 Wireless Security.",
+        badge_text="NWIT 275 TEAM",
+        badge_type="emerald"
+    ), unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 219, 233, 0.3); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h4 style="font-family: 'Space Grotesk', sans-serif; color: #dbfcff; margin: 0 0 4px 0; font-size: 16px;">
+                    🛡️ Project AirGuard Engineering Team
+                </h4>
+                <p style="font-size: 12.5px; color: #b9cacb; margin: 0;">
+                    Developed as a semester-long capstone platform for <strong>NWIT 275: Wireless Security & Ethical Penetration Testing</strong> (Fall 2026).
+                </p>
+            </div>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 4px 10px; border-radius: 6px; background: #191b23; border: 1px solid rgba(59, 73, 75, 0.5); color: #00dbe9;">
+                5 TEAM MEMBERS
+            </span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # -------------------------------------------------------------
+    # TEAM MEMBERS CONFIGURATION (Easy to customize!)
+    # To add your photo: place the image in assets/team/<name>.jpg
+    # Edit your bio, email, linkedin, and github placeholders below:
+    # -------------------------------------------------------------
+    TEAM_MEMBERS = [
+        {
+            "name": "Dagim Endalafer",
+            "photo_path": "assets/team/dagim.jpg",  # Place image in assets/team/dagim.jpg
+            "initials": "DE",
+            "bio": "Contributed to overall platform integration, 360° polar radar telemetry, and multi-vector rogue detection algorithms.",
+            "email": "dagim.placeholder@example.com",  # Replace with your email address
+            "linkedin": "https://www.linkedin.com/in/dagim-placeholder",  # Replace with your LinkedIn URL
+            "github": "https://github.com/dagimend07",  # Replace with your GitHub profile URL
+        },
+        {
+            "name": "Harrison Thompson",
+            "photo_path": "assets/team/harrison.jpg",  # Place image in assets/team/harrison.jpg
+            "initials": "HT",
+            "bio": "Focused on 802.11 wireless frame extraction, packet sniffer telemetry, and Wireshark filter verification workflows.",
+            "email": "harrison.placeholder@example.com",  # Replace with your email address
+            "linkedin": "https://www.linkedin.com/in/harrison-placeholder",  # Replace with your LinkedIn URL
+            "github": "https://github.com/harrison-placeholder",  # Replace with your GitHub profile URL
+        },
+        {
+            "name": "Nathael Hyppolite",
+            "photo_path": "assets/team/nathael.jpg",  # Place image in assets/team/nathael.jpg
+            "initials": "NH",
+            "bio": "Specialized in wireless inventory normalization, authorized corporate baseline policies, and OUI hardware fingerprinting.",
+            "email": "nathael.placeholder@example.com",  # Replace with your email address
+            "linkedin": "https://www.linkedin.com/in/nathael-placeholder",  # Replace with your LinkedIn URL
+            "github": "https://github.com/nathael-placeholder",  # Replace with your GitHub profile URL
+        },
+        {
+            "name": "Paolo",
+            "photo_path": "assets/team/paolo.jpg",  # Place image in assets/team/paolo.jpg
+            "initials": "P",
+            "bio": "Contributed to cryptographic protocol inspection, WPA/WPA2 4-way EAPOL handshake analysis, and deauthentication burst auditing.",
+            "email": "paolo.placeholder@example.com",  # Replace with your email address
+            "linkedin": "https://www.linkedin.com/in/paolo-placeholder",  # Replace with your LinkedIn URL
+            "github": "https://github.com/paolo-placeholder",  # Replace with your GitHub profile URL
+        },
+        {
+            "name": "Francisallen Alvarez",
+            "photo_path": "assets/team/francisallen.jpg",  # Place image in assets/team/francisallen.jpg
+            "initials": "FA",
+            "bio": "Collaborated on penetration testing scope definition, assessment findings documentation, and executive Markdown report generation.",
+            "email": "francisallen.placeholder@example.com",  # Replace with your email address
+            "linkedin": "https://www.linkedin.com/in/francisallen-placeholder",  # Replace with your LinkedIn URL
+            "github": "https://github.com/francisallen-placeholder",  # Replace with your GitHub profile URL
+        },
+    ]
+
+    def render_team_card(m):
+        photo = m.get("photo_path", "")
+        init = m.get("initials", "MC")
+        m_name = m.get("name", "Team Member")
+        m_bio = m.get("bio", "")
+        m_email = m.get("email", "#")
+        m_in = m.get("linkedin", "#")
+        m_gh = m.get("github", "#")
+        
+        avatar_markup = ""
+        if photo and os.path.exists(photo):
+            try:
+                with open(photo, "rb") as img_f:
+                    b64_val = base64.b64encode(img_f.read()).decode("utf-8")
+                ext = os.path.splitext(photo)[1].lower().replace(".", "")
+                if ext == "jpg": ext = "jpeg"
+                avatar_markup = f'''
+                <div style="width: 86px; height: 86px; margin: 0 auto 14px auto; border-radius: 50%; overflow: hidden; border: 2px solid #00dbe9; box-shadow: 0 0 16px rgba(0, 219, 233, 0.4);">
+                    <img src="data:image/{ext};base64,{b64_val}" style="width: 100%; height: 100%; object-fit: cover;" alt="{m_name}" />
+                </div>
+                '''
+            except Exception:
+                avatar_markup = ""
+                
+        if not avatar_markup:
+            avatar_markup = f'''
+            <div style="width: 86px; height: 86px; margin: 0 auto 14px auto; border-radius: 50%; background: linear-gradient(135deg, #191b23 0%, #272a32 100%); border: 2px solid rgba(0, 219, 233, 0.5); box-shadow: 0 0 16px rgba(0, 219, 233, 0.2); display: flex; align-items: center; justify-content: center; color: #00dbe9; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 700; letter-spacing: 0.05em;">
+                {init}
+            </div>
+            '''
+
+        return f'''
+        <div style="background: #191b23; border: 1px solid rgba(59, 73, 75, 0.45); border-radius: 12px; padding: 22px 16px; display: flex; flex-direction: column; justify-content: space-between; text-align: center; min-height: 290px; box-shadow: 0 4px 20px rgba(0,0,0,0.35);">
+            <div>
+                {avatar_markup}
+                <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 16.5px; font-weight: 700; color: #dbfcff; margin: 0 0 8px 0;">
+                    {m_name}
+                </h3>
+                <p style="font-family: 'Inter', sans-serif; font-size: 12px; color: #b9cacb; line-height: 1.5; margin: 0 0 16px 0; min-height: 54px;">
+                    {m_bio}
+                </p>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid rgba(59, 73, 75, 0.3);">
+                <a href="mailto:{m_email}" target="_blank" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; border-radius: 6px; background: #272a32; border: 1px solid rgba(59, 73, 75, 0.5); color: #dbfcff; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 500;">
+                    ✉️ Email
+                </a>
+                <a href="{m_in}" target="_blank" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; border-radius: 6px; background: rgba(0, 119, 181, 0.15); border: 1px solid rgba(0, 119, 181, 0.4); color: #70b5f9; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 500;">
+                    💼 LinkedIn
+                </a>
+                <a href="{m_gh}" target="_blank" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; border-radius: 6px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); color: #e1e2ec; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 500;">
+                    💻 GitHub
+                </a>
+            </div>
+        </div>
+        '''
+
+    # Grid Display: Row 1 (3 members)
+    r1_c1, r1_c2, r1_c3 = st.columns(3)
+    with r1_c1:
+        st.markdown(render_team_card(TEAM_MEMBERS[0]), unsafe_allow_html=True)
+    with r1_c2:
+        st.markdown(render_team_card(TEAM_MEMBERS[1]), unsafe_allow_html=True)
+    with r1_c3:
+        st.markdown(render_team_card(TEAM_MEMBERS[2]), unsafe_allow_html=True)
+
+    st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
+
+    # Grid Display: Row 2 (2 members centered)
+    pad1, r2_c1, r2_c2, pad2 = st.columns([0.5, 1, 1, 0.5])
+    with r2_c1:
+        st.markdown(render_team_card(TEAM_MEMBERS[3]), unsafe_allow_html=True)
+    with r2_c2:
+        st.markdown(render_team_card(TEAM_MEMBERS[4]), unsafe_allow_html=True)
+
+    st.markdown("---")
+    st.caption("💡 **Photo & Link Setup Note:** To display your actual headshot, place your picture inside the `assets/team/` directory (e.g. `assets/team/dagim.jpg`) and it will automatically replace the initials icon.")
