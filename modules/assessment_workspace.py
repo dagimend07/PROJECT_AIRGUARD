@@ -19,24 +19,5 @@ def get_assessment_scope():
 
 def get_findings_log():
     """Returns an interactive dataframe for tracking vulnerabilities and remediation."""
-    findings = [
-        {
-            "ID": "VULN-01",
-            "Severity": "Critical",
-            "Title": "Deprecated WEP Encryption in Use",
-            "Target": "Hidden (66:77:88:99:AA:BB)",
-            "Evidence (Packet/Log)": "Kismet row #5",
-            "Status": "Open",
-            "Remediation": "Decommission access point or upgrade to WPA3."
-        },
-        {
-            "ID": "VULN-02",
-            "Severity": "High",
-            "Title": "Management Frame Burst / Possible Deauth Attack",
-            "Target": "CorpNet (00:11:22:33:44:55)",
-            "Evidence (Packet/Log)": "PCAP Packets #890-892 (wlan.fc.type_subtype == 0x0c)",
-            "Status": "Verified",
-            "Remediation": "Enable 802.11w Management Frame Protection (MFP)."
-        }
-    ]
-    return pd.DataFrame(findings)
+    cols = ["ID", "Severity", "Title", "Target", "Evidence (Packet/Log)", "Status", "Remediation"]
+    return pd.DataFrame(columns=cols)

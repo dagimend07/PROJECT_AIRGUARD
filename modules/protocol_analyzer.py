@@ -39,7 +39,7 @@ def get_sample_protocol_data():
 def analyze_protocols(uploaded_file=None):
     """Extracts WPA/EAPOL handshakes and Deauth/Disassociation patterns from a PCAP."""
     if uploaded_file is None:
-        return get_sample_protocol_data()
+        return pd.DataFrame(), pd.DataFrame(), None, None
 
     if not SCAPY_AVAILABLE:
         return None, None, None, "Scapy is not installed. Run: python -m pip install scapy"

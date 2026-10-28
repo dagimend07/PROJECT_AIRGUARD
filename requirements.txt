@@ -1,0 +1,7 @@
+# Project AirGuard - Core Dependencies
+# NWIT 275: AI-Assisted Wireless Security Platform
+
+streamlit>=1.30.0
+pandas>=2.0.0
+scapy>=2.5.0
+google-genai>=0.1.0
