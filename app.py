@@ -595,6 +595,40 @@ elif navigation == "Wireless Inventory":
             
         st.dataframe(filtered_df, use_container_width=True)
         st.caption(f"Showing {len(filtered_df)} of {len(df)} recorded access points.")
+
+        # Export Insecure Networks (Open / WEP) to Findings
+        weak_networks = df[df["Security"].isin(["Open", "WEP"])]
+        if not weak_networks.empty:
+            if st.button(f"📥 Export {len(weak_networks)} Insecure Networks (Open / WEP) to Assessment Workspace Findings"):
+                cur_findings = st.session_state["findings_df"].copy() if not st.session_state["findings_df"].empty else pd.DataFrame(columns=["ID", "Severity", "Title", "Target", "Evidence (Packet/Log)", "Status", "Remediation"])
+                existing_targets = set(cur_findings["Target"].dropna().astype(str).unique()) if not cur_findings.empty else set()
+                new_rows = []
+                start_idx = len(cur_findings) + 1
+                for _, row in weak_networks.iterrows():
+                    tgt = f"{row.get('BSSID', 'Unknown')} ({row.get('SSID', 'Unknown')})"
+                    if tgt in existing_targets:
+                        continue
+                    sec = str(row.get('Security', 'Open'))
+                    sev = "Critical" if "WEP" in sec.upper() else "Medium"
+                    ch = row.get('Channel', 'N/A')
+                    sig = row.get('Signal', 'N/A')
+                    new_rows.append({
+                        "ID": f"FIND-0{start_idx}",
+                        "Severity": sev,
+                        "Title": f"Insecure Wireless Encryption: {row.get('SSID', 'Unknown')} ({sec})",
+                        "Target": tgt,
+                        "Evidence (Packet/Log)": f"wlan.bssid == {row.get('BSSID', '')} | Security: {sec} | RSSI: {sig} | Channel: {ch}",
+                        "Status": "Verified",
+                        "Remediation": "Decommission legacy WEP or unencrypted Open configurations; migrate to WPA2-Enterprise (802.1X) or WPA3-SAE with Protected Management Frames (PMF)."
+                    })
+                    start_idx += 1
+                if new_rows:
+                    updated = pd.concat([cur_findings, pd.DataFrame(new_rows)], ignore_index=True)
+                    st.session_state["findings_df"] = updated
+                    st.success(f"Added {len(new_rows)} insecure network findings to the Assessment Workspace!")
+                    st.rerun()
+                else:
+                    st.info("All detected insecure networks are already recorded in your findings log.")
     else:
         st.info("ℹ️ No wireless inventory loaded. Upload a Kismet CSV file above to analyze access points, channels, encryption, and signal strength.")
 
@@ -954,6 +988,46 @@ elif navigation == "Protocol Analysis":
                 st.caption("Verification Filter: Apply `wlan.fc.type_subtype == 0x0c || wlan.fc.type_subtype == 0x0a` in Wireshark.")
             else:
                 st.success("No Deauthentication or Disassociation frames observed.")
+
+            # Export Protocol Findings to Assessment Workspace
+            if summary and (summary.get("burst_detected") or summary.get("eapol_count", 0) > 0):
+                st.markdown("")
+                if st.button("📥 Export Handshake & Deauth Findings to Assessment Workspace"):
+                    cur_findings = st.session_state["findings_df"].copy() if not st.session_state["findings_df"].empty else pd.DataFrame(columns=["ID", "Severity", "Title", "Target", "Evidence (Packet/Log)", "Status", "Remediation"])
+                    existing_titles = set(cur_findings["Title"].dropna().astype(str).unique()) if not cur_findings.empty else set()
+                    new_rows = []
+                    start_idx = len(cur_findings) + 1
+                    
+                    if summary.get("burst_detected") and "802.11 Deauthentication Denial-of-Service Attack" not in existing_titles:
+                        new_rows.append({
+                            "ID": f"FIND-0{start_idx}",
+                            "Severity": "High",
+                            "Title": "802.11 Deauthentication Denial-of-Service Attack",
+                            "Target": "Monitored Wireless Airspace (wlan0mon)",
+                            "Evidence (Packet/Log)": f"wlan.fc.type_subtype == 0x0c | Observed anomalous burst of {summary.get('deauth_count', 0)} deauth frames in short time window",
+                            "Status": "Verified",
+                            "Remediation": "Enable 802.11w Management Frame Protection (MFP / PMF) to prevent spoofed deauthentication frame injection."
+                        })
+                        start_idx += 1
+                        
+                    if summary.get("handshake_complete") and "WPA/WPA2 4-Way Handshake Key Exchange Exposure" not in existing_titles:
+                        new_rows.append({
+                            "ID": f"FIND-0{start_idx}",
+                            "Severity": "High",
+                            "Title": "WPA/WPA2 4-Way Handshake Key Exchange Exposure",
+                            "Target": "Authenticated Wireless Client & AP BSSID",
+                            "Evidence (Packet/Log)": f"eapol | Complete 4/4 handshake frames captured ({summary.get('eapol_count', 0)} EAPOL frames). Subject to offline dictionary attacks.",
+                            "Status": "Verified",
+                            "Remediation": "Transition from WPA2-PSK to WPA3-SAE (Simultaneous Authentication of Equals) to provide forward secrecy and prevent offline dictionary recovery."
+                        })
+                        
+                    if new_rows:
+                        updated = pd.concat([cur_findings, pd.DataFrame(new_rows)], ignore_index=True)
+                        st.session_state["findings_df"] = updated
+                        st.success(f"Added {len(new_rows)} protocol findings to Assessment Workspace!")
+                        st.rerun()
+                    else:
+                        st.info("Protocol findings are already logged in the Assessment Workspace.")
     else:
         st.info("ℹ️ No PCAP loaded. Upload a wireless packet capture (.pcap) above to analyze WPA/WPA2 4-way handshakes and deauthentication management frames.")
 
@@ -1067,7 +1141,13 @@ elif navigation == "Reports":
             st.info("ℹ️ No findings logged in the Assessment Workspace yet. Document and verify findings in the Assessment Workspace before generating the final report.")
     
     if st.button("Generate Final Report"):
-        report_markdown = generate_markdown_report(scope, findings_df)
+        report_markdown = generate_markdown_report(
+            scope, 
+            findings_df, 
+            inv_df=st.session_state.get("inventory_df"), 
+            pcap_counts=st.session_state.get("pcap_counts"), 
+            proto_summary=st.session_state.get("protocol_summary")
+        )
         
         st.success("Report generated successfully!")
         st.markdown("---")
