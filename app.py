@@ -1284,7 +1284,6 @@ elif navigation == "About Us":
             "name": "Dagim Endalafer",
             "photo_path": "assets/team/dagim.jpg",  # Place image in assets/team/dagim.jpg
             "initials": "DE",
-            "bio": "Contributed to overall platform integration, 360° polar radar telemetry, and multi-vector rogue detection algorithms.",
             "email": "dagim.placeholder@example.com",  # Replace with your email address
             "linkedin": "https://www.linkedin.com/in/dagim-placeholder",  # Replace with your LinkedIn URL
             "github": "https://github.com/dagimend07",  # Replace with your GitHub profile URL
@@ -1293,7 +1292,6 @@ elif navigation == "About Us":
             "name": "Harrison Thompson",
             "photo_path": "assets/team/harrison.jpg",  # Place image in assets/team/harrison.jpg
             "initials": "HT",
-            "bio": "Focused on 802.11 wireless frame extraction, packet sniffer telemetry, and Wireshark filter verification workflows.",
             "email": "harrison.placeholder@example.com",  # Replace with your email address
             "linkedin": "https://www.linkedin.com/in/harrison-placeholder",  # Replace with your LinkedIn URL
             "github": "https://github.com/harrison-placeholder",  # Replace with your GitHub profile URL
@@ -1302,7 +1300,6 @@ elif navigation == "About Us":
             "name": "Nathael Hyppolite",
             "photo_path": "assets/team/nathael.jpg",  # Place image in assets/team/nathael.jpg
             "initials": "NH",
-            "bio": "Specialized in wireless inventory normalization, authorized corporate baseline policies, and OUI hardware fingerprinting.",
             "email": "nathael.placeholder@example.com",  # Replace with your email address
             "linkedin": "https://www.linkedin.com/in/nathael-placeholder",  # Replace with your LinkedIn URL
             "github": "https://github.com/nathael-placeholder",  # Replace with your GitHub profile URL
@@ -1311,7 +1308,6 @@ elif navigation == "About Us":
             "name": "Paolo",
             "photo_path": "assets/team/paolo.jpg",  # Place image in assets/team/paolo.jpg
             "initials": "P",
-            "bio": "Contributed to cryptographic protocol inspection, WPA/WPA2 4-way EAPOL handshake analysis, and deauthentication burst auditing.",
             "email": "paolo.placeholder@example.com",  # Replace with your email address
             "linkedin": "https://www.linkedin.com/in/paolo-placeholder",  # Replace with your LinkedIn URL
             "github": "https://github.com/paolo-placeholder",  # Replace with your GitHub profile URL
@@ -1320,7 +1316,6 @@ elif navigation == "About Us":
             "name": "Francisallen Alvarez",
             "photo_path": "assets/team/francisallen.jpg",  # Place image in assets/team/francisallen.jpg
             "initials": "FA",
-            "bio": "Collaborated on penetration testing scope definition, assessment findings documentation, and executive Markdown report generation.",
             "email": "francisallen.placeholder@example.com",  # Replace with your email address
             "linkedin": "https://www.linkedin.com/in/francisallen-placeholder",  # Replace with your LinkedIn URL
             "github": "https://github.com/francisallen-placeholder",  # Replace with your GitHub profile URL

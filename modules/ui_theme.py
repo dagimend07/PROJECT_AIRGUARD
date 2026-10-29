@@ -1033,11 +1033,10 @@ def render_team_member_card(m):
         avatar_markup = f'<div style="width: 86px; height: 86px; margin: 0 auto 14px auto; border-radius: 50%; background: linear-gradient(135deg, #191b23 0%, #272a32 100%); border: 2px solid rgba(0, 219, 233, 0.5); box-shadow: 0 0 16px rgba(0, 219, 233, 0.2); display: flex; align-items: center; justify-content: center; color: #00dbe9; font-family: sans-serif; font-size: 24px; font-weight: 700; letter-spacing: 0.05em;">{init}</div>'
 
     card_html = (
-        '<div style="background: #191b23; border: 1px solid rgba(59, 73, 75, 0.45); border-radius: 12px; padding: 22px 16px; display: flex; flex-direction: column; justify-content: space-between; text-align: center; min-height: 290px; box-shadow: 0 4px 20px rgba(0,0,0,0.35);">'
+        '<div style="background: #191b23; border: 1px solid rgba(59, 73, 75, 0.45); border-radius: 12px; padding: 20px 16px; display: flex; flex-direction: column; justify-content: space-between; text-align: center; min-height: 200px; box-shadow: 0 4px 20px rgba(0,0,0,0.35);">'
         '<div>'
         f'{avatar_markup}'
-        f'<h3 style="font-family: sans-serif; font-size: 16.5px; font-weight: 700; color: #dbfcff; margin: 0 0 8px 0;">{m_name}</h3>'
-        f'<p style="font-family: sans-serif; font-size: 12px; color: #b9cacb; line-height: 1.5; margin: 0 0 16px 0; min-height: 54px;">{m_bio}</p>'
+        f'<h3 style="font-family: sans-serif; font-size: 16.5px; font-weight: 700; color: #dbfcff; margin: 0 0 14px 0;">{m_name}</h3>'
         '</div>'
         '<div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid rgba(59, 73, 75, 0.3);">'
         f'<a href="mailto:{m_email}" target="_blank" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; border-radius: 6px; background: #272a32; border: 1px solid rgba(59, 73, 75, 0.5); color: #dbfcff; font-family: monospace; font-size: 10.5px; font-weight: 500;">✉️ Email</a>'
