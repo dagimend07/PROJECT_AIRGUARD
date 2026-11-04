@@ -1340,5 +1340,4 @@ elif navigation == "About Us":
     with r2_c2:
         st.markdown(render_team_member_card(TEAM_MEMBERS[4]), unsafe_allow_html=True)
 
-    st.markdown("---")
-    st.caption("💡 **Photo & Link Setup Note:** To display your actual headshot, place your picture inside the `assets/team/` directory (e.g. `assets/team/dagim.jpg`) and it will automatically replace the initials icon.")
+   
