@@ -1,0 +1,11 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Streamlit local state
+.streamlit/
+
+# Temporary update scripts
+update_*.py
+apply_*.py
