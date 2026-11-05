@@ -1284,8 +1284,8 @@ elif navigation == "About Us":
             "name": "Dagim Endalafer",
             "photo_path": "assets/team/dagim.jpg",  # Place image in assets/team/dagim.jpg
             "initials": "DE",
-            "email": "dagim.placeholder@example.com",  # Replace with your email address
-            "linkedin": "https://www.linkedin.com/in/dagim-placeholder",  # Replace with your LinkedIn URL
+            "email": "dagimend07@gmail.com",  # Replace with your email address
+            "linkedin": "https://www.linkedin.com/in/dagim-endalafer-247235391",  # Replace with your LinkedIn URL
             "github": "https://github.com/dagimend07",  # Replace with your GitHub profile URL
         },
         {
@@ -1293,16 +1293,16 @@ elif navigation == "About Us":
             "photo_path": "assets/team/harrison.jpg",  # Place image in assets/team/harrison.jpg
             "initials": "HT",
             "email": "harrison.placeholder@example.com",  # Replace with your email address
-            "linkedin": "https://www.linkedin.com/in/harrison-placeholder",  # Replace with your LinkedIn URL
+            "linkedin": "",  # Replace with your LinkedIn URL
             "github": "https://github.com/harrison-placeholder",  # Replace with your GitHub profile URL
         },
         {
             "name": "Nathael Hyppolite",
             "photo_path": "assets/team/nathael.jpg",  # Place image in assets/team/nathael.jpg
             "initials": "NH",
-            "email": "nathael.placeholder@example.com",  # Replace with your email address
-            "linkedin": "https://www.linkedin.com/in/nathael-placeholder",  # Replace with your LinkedIn URL
-            "github": "https://github.com/nathael-placeholder",  # Replace with your GitHub profile URL
+            "email": "nathaelchris@gmail.com",  # Replace with your email address
+            "linkedin": "https://www.linkedin.com/in/nathael-christian-hyppolite-3b776826a",  # Replace with your LinkedIn URL
+            "github": "",  # Replace with your GitHub profile URL
         },
         {
             "name": "Paolo",
